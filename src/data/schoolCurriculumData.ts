@@ -225,6 +225,104 @@ export const SCHOOL_MATH_EXERCISES: MathSchoolChallengeData[] = [
     ],
     correctOptionId: 'opt_manana',
     explanation: 'El desayuno es la primera comida al levantarnos por la mañana.'
+  },
+
+  // 7. Lenguaje Matemático Cotidiano (Más largo / Más corto)
+  {
+    id: 'sm_lang_long',
+    subject: 'matematicas',
+    level: 1,
+    type: 'math_school_challenge',
+    subType: 'comparison',
+    title: 'Más Largo y Más Corto',
+    instructions: 'Compara la longitud de estos objetos de tu estuche.',
+    question: '¿Cuál de estos objetos escolares es MÁS LARGO?',
+    illustration: '📏',
+    options: [
+      { id: 'opt_regla', label: 'La regla de 30 centímetros 📏' },
+      { id: 'opt_goma', label: 'La goma de borrar 🧼' },
+      { id: 'opt_sacapuntas', label: 'El sacapuntas ✏️' }
+    ],
+    correctOptionId: 'opt_regla',
+    explanation: 'La regla mide 30 cm, por lo que es mucho más larga que la goma o el sacapuntas.'
+  },
+
+  // 8. Comparar y Ordenar hasta el 40 (Mayor que / Menor que)
+  {
+    id: 'sm_comp_1',
+    subject: 'matematicas',
+    level: 1,
+    type: 'math_school_challenge',
+    subType: 'comparison',
+    title: 'Mayor que / Menor que',
+    instructions: 'Compara las dos cantidades numéricas.',
+    question: '¿Cuál de estos números es MAYOR que 28?',
+    illustration: '⚖️',
+    options: [
+      { id: 'opt_19', label: '19' },
+      { id: 'opt_28', label: '28' },
+      { id: 'opt_34', label: '34' }
+    ],
+    correctOptionId: 'opt_34',
+    explanation: '34 tiene 3 decenas, mientras que 28 tiene 2 decenas. Por tanto: 34 > 28.'
+  },
+  {
+    id: 'sm_order_1',
+    subject: 'matematicas',
+    level: 1,
+    type: 'math_school_challenge',
+    subType: 'comparison',
+    title: 'Ordenar de Menor a Mayor hasta el 40',
+    instructions: 'Observa estos tres números: 32, 15, 27.',
+    question: '¿Cuál es el orden correcto de MENOR a MAYOR?',
+    illustration: '🔢',
+    options: [
+      { id: 'opt_ord_ok', label: '15 < 27 < 32' },
+      { id: 'opt_ord_inv', label: '32 < 27 < 15' },
+      { id: 'opt_ord_mid', label: '27 < 15 < 32' }
+    ],
+    correctOptionId: 'opt_ord_ok',
+    explanation: 'El más pequeño es 15 (1 decena), le sigue 27 (2 decenas) y el más grande es 32 (3 decenas).'
+  },
+
+  // 9. Geometría: Líneas Rectas y Líneas Curvas
+  {
+    id: 'sm_geom_lines',
+    subject: 'matematicas',
+    level: 1,
+    type: 'math_school_challenge',
+    subType: 'geometry_measure',
+    title: 'Líneas Rectas y Curvas',
+    instructions: 'Fíjate en las formas de los objetos de la clase.',
+    question: '¿Cuál de estos objetos está formado por una LÍNEA CURVA cerrada?',
+    illustration: '➰',
+    options: [
+      { id: 'opt_aro', label: 'Un aro de gimnasia redondo ⭕' },
+      { id: 'opt_regla', label: 'El borde de una regla recta 📏' },
+      { id: 'opt_cuadro', label: 'El marco de un cuadro cuadrado ⏹️' }
+    ],
+    correctOptionId: 'opt_aro',
+    explanation: 'El aro redondo es una circunferencia formada por una línea curva continua sin esquinas.'
+  },
+
+  // 10. Algoritmo de Suma sin Llevar hasta el 40
+  {
+    id: 'sm_alg_1',
+    subject: 'matematicas',
+    level: 1,
+    type: 'math_school_challenge',
+    subType: 'word_problem',
+    title: 'Suma sin llevar en el colegio',
+    instructions: 'En el autobús escolar viajan 23 niños y en la parada suben 14 niños más.',
+    question: '¿Cuántos niños viajan en total en el autobús? (23 + 14)',
+    illustration: '🚌',
+    options: [
+      { id: 'opt_37', label: '37 niños' },
+      { id: 'opt_35', label: '35 niños' },
+      { id: 'opt_27', label: '27 niños' }
+    ],
+    correctOptionId: 'opt_37',
+    explanation: 'Sumamos unidades: 3 + 4 = 7. Sumamos decenas: 2 + 1 = 3 decenas. Resultado: 37 niños.'
   }
 ];
 

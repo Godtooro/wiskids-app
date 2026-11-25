@@ -202,7 +202,7 @@ export interface MemoryMissingItemExerciseData extends BaseExercise {
 
 export interface MathSchoolChallengeData extends BaseExercise {
   type: 'math_school_challenge';
-  subType: 'coins' | 'place_value' | 'ordinals' | 'series' | 'word_problem' | 'geometry_measure';
+  subType: 'coins' | 'place_value' | 'ordinals' | 'series' | 'word_problem' | 'geometry_measure' | 'comparison';
   question: string;
   illustration?: string;
   coinItems?: Array<{ value: 1 | 2; count: number }>;
