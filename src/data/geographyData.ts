@@ -4,6 +4,7 @@ import { SPAIN_PROVINCE_BORDERS, SPAIN_PROVINCIAL_CAPITALS, ProvincialCapitalCit
 import { EUROPE_COUNTRIES, EUROPE_CAPITALS, EuropeCountryRegion, EuropeCapitalCity } from './maps/europeData';
 import { WORLD_COUNTRIES, WORLD_CAPITALS, WorldCountryRegion } from './maps/worldData';
 import { CONTINENTS_DATA, ContinentRegion } from './maps/continentsData';
+import { ALL_WORLD_POLITICAL_BORDERS } from './maps/worldPoliticalData';
 import {
   ASIA_CAPITALS,
   AFRICA_CAPITALS,
@@ -64,6 +65,7 @@ export const MAPS_DATA: Record<string, MapDefinition> = {
       labelX: r.labelX,
       labelY: r.labelY
     })),
+    backgroundBorders: SPAIN_PROVINCE_BORDERS,
     canaryInsetBox: { x: 10, y: 440, width: 230, height: 145 }
   },
 
@@ -106,11 +108,7 @@ export const MAPS_DATA: Record<string, MapDefinition> = {
       labelY: c.labelY,
       color: c.color
     })),
-    backgroundBorders: WORLD_COUNTRIES.map((c) => ({
-      id: c.id,
-      name: c.name,
-      pathD: c.pathD
-    }))
+    backgroundBorders: ALL_WORLD_POLITICAL_BORDERS
   },
 
   // Capitales de Europa
@@ -146,11 +144,7 @@ export const MAPS_DATA: Record<string, MapDefinition> = {
     viewBox: '430 50 350 330',
     regions: [],
     cities: ASIA_CAPITALS,
-    backgroundBorders: WORLD_COUNTRIES.map((c) => ({
-      id: c.id,
-      name: c.name,
-      pathD: c.pathD
-    }))
+    backgroundBorders: ALL_WORLD_POLITICAL_BORDERS
   },
 
   // Capitales de África
@@ -162,11 +156,7 @@ export const MAPS_DATA: Record<string, MapDefinition> = {
     viewBox: '320 100 270 270',
     regions: [],
     cities: AFRICA_CAPITALS,
-    backgroundBorders: WORLD_COUNTRIES.map((c) => ({
-      id: c.id,
-      name: c.name,
-      pathD: c.pathD
-    }))
+    backgroundBorders: ALL_WORLD_POLITICAL_BORDERS
   },
 
   // Capitales de América (Norte y Sur)
@@ -178,11 +168,7 @@ export const MAPS_DATA: Record<string, MapDefinition> = {
     viewBox: '110 50 310 370',
     regions: [],
     cities: AMERICA_CAPITALS,
-    backgroundBorders: WORLD_COUNTRIES.map((c) => ({
-      id: c.id,
-      name: c.name,
-      pathD: c.pathD
-    }))
+    backgroundBorders: ALL_WORLD_POLITICAL_BORDERS
   },
 
   // Capitales de Centroamérica y Caribe
@@ -194,11 +180,7 @@ export const MAPS_DATA: Record<string, MapDefinition> = {
     viewBox: '170 140 160 120',
     regions: [],
     cities: CENTROAMERICA_CAPITALS,
-    backgroundBorders: WORLD_COUNTRIES.map((c) => ({
-      id: c.id,
-      name: c.name,
-      pathD: c.pathD
-    }))
+    backgroundBorders: ALL_WORLD_POLITICAL_BORDERS
   },
 
   // Europa Países

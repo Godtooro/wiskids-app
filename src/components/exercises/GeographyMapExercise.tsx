@@ -160,6 +160,9 @@ export const GeographyMapExercise: React.FC<GeographyMapExerciseProps> = ({
                 transformOrigin: 'center center'
               }}
             >
+              {/* Clean Ocean Background */}
+              <rect width="100%" height="100%" fill="#f0f9ff" className="pointer-events-none" />
+
               {/* Optional Canary Islands Inset Frame for Spain Maps */}
               {mapDef.canaryInsetBox && (
                 <g className="pointer-events-none">
@@ -168,7 +171,7 @@ export const GeographyMapExercise: React.FC<GeographyMapExerciseProps> = ({
                     y={mapDef.canaryInsetBox.y}
                     width={mapDef.canaryInsetBox.width}
                     height={mapDef.canaryInsetBox.height}
-                    fill="rgba(240, 249, 255, 0.6)"
+                    fill="rgba(240, 249, 255, 0.75)"
                     stroke="#94a3b8"
                     strokeWidth="1.5"
                     strokeDasharray="4 3"
@@ -184,43 +187,48 @@ export const GeographyMapExercise: React.FC<GeographyMapExerciseProps> = ({
                 </g>
               )}
 
-              {/* Background Borders (used when in City Mode or for European/Spanish provinces) */}
+              {/* Background Borders (Political country borders or Spanish provinces) */}
               {mapDef.backgroundBorders?.map((b) => (
                 <path
                   key={b.id}
                   d={b.pathD}
-                  fill="#e2e8f0"
-                  stroke="#cbd5e1"
-                  strokeWidth="1.5"
+                  fill="#ffffff"
+                  stroke="#94a3b8"
+                  strokeWidth="0.8"
                   strokeLinejoin="round"
                   className="transition-colors pointer-events-none"
                 />
               ))}
 
-              {/* 1. REGION MODE: Surface polygons for Autonomous Communities or Countries */}
+              {/* 1. REGION MODE: Surface polygons for Autonomous Communities, Continents or Countries */}
               {!isCityMode &&
                 mapDef.regions.map((region) => {
                   const isSelected = selectedId === region.id;
                   const isTarget = region.id === exercise.targetRegionId;
 
-                  let fillColor = '#cbd5e1'; // neutral slate
-                  let strokeColor = '#94a3b8';
-                  let strokeWidth = '2';
+                  // Clean political atlas styling: never block or hide underlying country borders!
+                  let fillColor = region.color || '#3b82f6';
+                  let strokeColor = region.color || '#3b82f6';
+                  let strokeWidth = '1.8';
+                  let fillOpacity = 0.06;
 
                   if (isSubmitted) {
                     if (isTarget) {
-                      fillColor = '#34d399'; // Emerald success
+                      fillColor = '#10b981'; // Emerald success
                       strokeColor = '#059669';
                       strokeWidth = '3.5';
+                      fillOpacity = 0.45;
                     } else if (isSelected) {
-                      fillColor = '#f87171'; // Red fail
+                      fillColor = '#ef4444'; // Red fail
                       strokeColor = '#dc2626';
                       strokeWidth = '3';
+                      fillOpacity = 0.4;
                     }
                   } else if (isSelected) {
-                    fillColor = '#38bdf8'; // Sky blue on click
+                    fillColor = '#0ea5e9'; // Sky blue on click
                     strokeColor = '#0284c7';
                     strokeWidth = '3';
+                    fillOpacity = 0.35;
                   }
 
                   const shouldShowLabel =
@@ -236,10 +244,12 @@ export const GeographyMapExercise: React.FC<GeographyMapExerciseProps> = ({
                       <path
                         d={region.pathD}
                         fill={fillColor}
+                        fillOpacity={fillOpacity}
                         stroke={strokeColor}
                         strokeWidth={strokeWidth}
                         strokeLinejoin="round"
-                        className="transition-colors hover:fill-amber-200/80 hover:stroke-amber-500 active:scale-[0.99] duration-150"
+                        style={{ pointerEvents: 'all' }}
+                        className="transition-all hover:fill-amber-300 hover:fill-opacity-30 hover:stroke-amber-500 duration-150"
                       />
 
                       {/* Name label appears only after answering or on request (mapa mudo sin nombres) */}
