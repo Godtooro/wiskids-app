@@ -12,6 +12,7 @@ import { VisualDictationExercise } from '../exercises/VisualDictationExercise';
 import { MathExercise } from '../exercises/MathExercise';
 import { GeographyMapExercise } from '../exercises/GeographyMapExercise';
 import { EnglishExercise } from '../exercises/EnglishExercise';
+import { MemoryExercise } from '../exercises/MemoryExercise';
 
 interface SessionRunnerViewProps {
   exercises: Exercise[];
@@ -111,6 +112,16 @@ export const SessionRunnerView: React.FC<SessionRunnerViewProps> = ({
       case 'vocab_match_word':
         return (
           <EnglishExercise
+            key={currentExercise.id}
+            exercise={currentExercise}
+            onComplete={handleExerciseComplete}
+          />
+        );
+      case 'memory_cards':
+      case 'memory_sequence':
+      case 'memory_missing_item':
+        return (
+          <MemoryExercise
             key={currentExercise.id}
             exercise={currentExercise}
             onComplete={handleExerciseComplete}

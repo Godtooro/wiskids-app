@@ -44,6 +44,16 @@ export const INITIAL_TROPHIES: Trophy[] = [
     target: 10
   },
   {
+    id: 'maestro_memoria',
+    title: 'Mente Prodigiosa',
+    description: 'Supera 10 retos del gimnasio de memoria.',
+    icon: '🧠',
+    category: 'memoria',
+    unlocked: false,
+    progress: 0,
+    target: 10
+  },
+  {
     id: 'racha_3_dias',
     title: 'Racha Imparable',
     description: 'Entrena durante 3 días seguidos.',
@@ -81,7 +91,8 @@ export const INITIAL_PROFILE: UserProfile = {
     lenguaje: { attempted: 0, correct: 0, level: 1, streak: 0 },
     matematicas: { attempted: 0, correct: 0, level: 1, streak: 0 },
     geografia: { attempted: 0, correct: 0, level: 1, streak: 0 },
-    ingles: { attempted: 0, correct: 0, level: 1, streak: 0 }
+    ingles: { attempted: 0, correct: 0, level: 1, streak: 0 },
+    memoria: { attempted: 0, correct: 0, level: 1, streak: 0 }
   },
   trophies: INITIAL_TROPHIES,
   reviewQueue: []
@@ -109,6 +120,12 @@ export class LocalStorageRepository implements IProgressRepository {
         return initial;
       }
       const profile = JSON.parse(data) as UserProfile;
+      if (!profile.subjectStats) {
+        profile.subjectStats = { ...INITIAL_PROFILE.subjectStats };
+      }
+      if (!profile.subjectStats.memoria) {
+        profile.subjectStats.memoria = { attempted: 0, correct: 0, level: 1, streak: 0 };
+      }
       this.checkDailyStreak(profile);
       return profile;
     } catch (err) {

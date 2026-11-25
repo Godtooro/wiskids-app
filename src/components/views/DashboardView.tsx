@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Sparkles, BookOpen, Calculator, Compass, Award, Target, Flame, ArrowRight } from 'lucide-react';
+import { Play, Sparkles, BookOpen, Calculator, Compass, Award, Target, Flame, ArrowRight, Brain } from 'lucide-react';
 import { UserProfile, Subject } from '../../types/education';
 import { soundService } from '../../services/soundService';
 
@@ -76,7 +76,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <span className="text-xs font-bold text-slate-400">Elige lo que más te apetezca entrenar</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {/* Lenguaje */}
           <button
             type="button"
@@ -91,7 +91,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <BookOpen className="w-6 h-6" />
               </div>
               <span className="text-xs font-black text-emerald-700 bg-emerald-100/70 px-2 py-1 rounded-lg">
-                {profile.subjectStats.lenguaje.correct} aciertos
+                {profile.subjectStats?.lenguaje?.correct || 0} aciertos
               </span>
             </div>
             <div>
@@ -118,7 +118,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <Calculator className="w-6 h-6" />
               </div>
               <span className="text-xs font-black text-blue-700 bg-blue-100/70 px-2 py-1 rounded-lg">
-                {profile.subjectStats.matematicas.correct} aciertos
+                {profile.subjectStats?.matematicas?.correct || 0} aciertos
               </span>
             </div>
             <div>
@@ -145,7 +145,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <Compass className="w-6 h-6" />
               </div>
               <span className="text-xs font-black text-amber-700 bg-amber-100/70 px-2 py-1 rounded-lg">
-                {profile.subjectStats.geografia.correct} lugares
+                {profile.subjectStats?.geografia?.correct || 0} lugares
               </span>
             </div>
             <div>
@@ -153,7 +153,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 Geografía
               </h3>
               <p className="text-xs font-bold text-slate-500 mt-0.5">
-                Mapas interactivos de España y el Mundo
+                Mapas mudos, CC.AA., capitales y países
               </p>
             </div>
           </button>
@@ -172,7 +172,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-2xl" role="img" aria-hidden="true">🇬🇧</span>
               </div>
               <span className="text-xs font-black text-purple-700 bg-purple-100/70 px-2 py-1 rounded-lg">
-                {profile.subjectStats.ingles.correct} palabras
+                {profile.subjectStats?.ingles?.correct || 0} palabras
               </span>
             </div>
             <div>
@@ -181,6 +181,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </h3>
               <p className="text-xs font-bold text-slate-500 mt-0.5">
                 Vocabulario visual y pronunciación
+              </p>
+            </div>
+          </button>
+
+          {/* Memoria (Nuevo Módulo) */}
+          <button
+            type="button"
+            onClick={() => {
+              soundService.playTap();
+              onStartSubjectSession('memoria');
+            }}
+            className="group touch-target min-h-[140px] p-5 rounded-3xl bg-white hover:bg-rose-50/50 border-2 border-slate-200 hover:border-rose-400 shadow-sm hover:shadow-md transition-all active:scale-95 text-left flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                <Brain className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-black text-rose-700 bg-rose-100/70 px-2 py-1 rounded-lg">
+                {profile.subjectStats?.memoria?.correct || 0} retos
+              </span>
+            </div>
+            <div>
+              <h3 className="font-black text-xl text-slate-800 group-hover:text-rose-700 transition-colors">
+                Memoria
+              </h3>
+              <p className="text-xs font-bold text-slate-500 mt-0.5">
+                Parejas, secuencias sonoras y atención
               </p>
             </div>
           </button>

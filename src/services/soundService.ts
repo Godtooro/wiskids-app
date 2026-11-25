@@ -91,6 +91,29 @@ class SoundService {
     osc.stop(now + 0.05);
   }
 
+  // Play musical tone with frequency (ideal for memory pads and melodic feedback)
+  playTone(frequency: number, duration = 0.28, type: OscillatorType = 'triangle') {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(frequency, now);
+
+    gain.gain.setValueAtTime(0.01, now);
+    gain.gain.linearRampToValueAtTime(0.2, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + duration + 0.05);
+  }
+
   // Big celebration fanfare with confetti
   playFanfare() {
     const ctx = this.getAudioContext();

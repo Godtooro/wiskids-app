@@ -1,8 +1,19 @@
 import { Exercise, Subject, UserProfile } from '../types/education';
 import { generateMathExercise } from '../utils/mathGenerator';
-import { READING_EXERCISES, ORDERING_EXERCISES, COMPLETION_EXERCISES, DICTATION_EXERCISES } from './languageData';
+import {
+  READING_EXERCISES,
+  ORDERING_EXERCISES,
+  COMPLETION_EXERCISES,
+  DICTATION_EXERCISES
+} from './languageData';
 import { GEOGRAPHY_EXERCISES } from './geographyData';
 import { ENGLISH_EXERCISES } from './englishData';
+import {
+  generateMemoryCardsExercise,
+  generateMemorySequenceExercise,
+  generateMissingItemExercise,
+  STATIC_MEMORY_EXERCISES
+} from './memoryData';
 
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array];
@@ -17,50 +28,62 @@ export function generateDailySession(profile: UserProfile): Exercise[] {
   const mathStreak = profile.subjectStats.matematicas.streak || 0;
   const level = 1;
 
-  // 1. Math exercises (3 dynamic exercises adapting to streak)
+  // 1. Math exercises (2 dynamic exercises)
   const mathList: Exercise[] = [
     generateMathExercise(mathStreak, level),
-    generateMathExercise(mathStreak + 1, level),
-    generateMathExercise(mathStreak + 2, level)
+    generateMathExercise(mathStreak + 1, level)
   ];
 
-  // 2. Language exercises (3 exercises: 1 reading, 1 ordering, 1 completion/dictation)
+  // 2. Language exercises (2 exercises: 1 reading, 1 ordering/completion)
   const shuffledReading = shuffleArray(READING_EXERCISES);
-  const shuffledOrdering = shuffleArray(ORDERING_EXERCISES);
-  const shuffledCompletion = shuffleArray([...COMPLETION_EXERCISES, ...DICTATION_EXERCISES]);
+  const shuffledOtherLang = shuffleArray([
+    ...ORDERING_EXERCISES,
+    ...COMPLETION_EXERCISES,
+    ...DICTATION_EXERCISES
+  ]);
+  const langList: Exercise[] = [shuffledReading[0], shuffledOtherLang[0]];
 
-  const langList: Exercise[] = [
-    shuffledReading[0],
-    shuffledOrdering[0],
-    shuffledCompletion[0]
-  ];
-
-  // 3. Geography exercises (2 exercises)
-  const shuffledGeo = shuffleArray(GEOGRAPHY_EXERCISES);
-  const geoList: Exercise[] = [shuffledGeo[0], shuffledGeo[1]];
+  // 3. Geography exercises (2 exercises: 1 CCAA/País surface, 1 capital/city point)
+  const ccaaOrCountryExercises = GEOGRAPHY_EXERCISES.filter(
+    (e) => e.targetType === 'region' || !e.targetType
+  );
+  const capitalExercises = GEOGRAPHY_EXERCISES.filter((e) => e.targetType === 'city');
+  const shuffledCCAA = shuffleArray(ccaaOrCountryExercises);
+  const shuffledCapitals = shuffleArray(capitalExercises);
+  const geoList: Exercise[] = [shuffledCCAA[0], shuffledCapitals[0]];
 
   // 4. English exercises (2 exercises)
   const shuffledEng = shuffleArray(ENGLISH_EXERCISES);
   const engList: Exercise[] = [shuffledEng[0], shuffledEng[1]];
 
-  // Combine and interleave nicely so subjects alternate
+  // 5. Memory exercises (2 exercises: 1 cards, 1 sequence/missing)
+  const memList: Exercise[] = [
+    generateMemoryCardsExercise(3, 'animals'),
+    Math.random() > 0.5 ? generateMemorySequenceExercise(3) : generateMissingItemExercise(3)
+  ];
+
+  // Interleave nicely across the 5 subjects for a 10-challenge session
   const interleaved: Exercise[] = [
     mathList[0],
     langList[0],
     geoList[0],
+    memList[0],
     engList[0],
     mathList[1],
     langList[1],
     geoList[1],
-    engList[1],
-    mathList[2],
-    langList[2]
+    memList[1],
+    engList[1]
   ];
 
   return interleaved;
 }
 
-export function generateSubjectSession(subject: Subject, profile: UserProfile, count = 6): Exercise[] {
+export function generateSubjectSession(
+  subject: Subject,
+  profile: UserProfile,
+  count = 6
+): Exercise[] {
   if (subject === 'matematicas') {
     const streak = profile.subjectStats.matematicas.streak || 0;
     const list: Exercise[] = [];
@@ -86,6 +109,19 @@ export function generateSubjectSession(subject: Subject, profile: UserProfile, c
 
   if (subject === 'ingles') {
     return shuffleArray(ENGLISH_EXERCISES).slice(0, count);
+  }
+
+  if (subject === 'memoria') {
+    const dynamicMemory: Exercise[] = [
+      generateMemoryCardsExercise(2, 'animals'),
+      generateMemorySequenceExercise(3),
+      generateMissingItemExercise(3),
+      generateMemoryCardsExercise(3, 'fruits'),
+      generateMemorySequenceExercise(4),
+      generateMissingItemExercise(4),
+      generateMemoryCardsExercise(4, 'space')
+    ];
+    return shuffleArray(dynamicMemory).slice(0, count);
   }
 
   return [];

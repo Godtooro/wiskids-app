@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Unlock, Copy, Download, Upload, Cloud, RefreshCw, Check, AlertCircle, BarChart3, User } from 'lucide-react';
-import { UserProfile, IProgressRepository } from '../../types/education';
+import { UserProfile, IProgressRepository, Subject } from '../../types/education';
 import { storageService } from '../../services/storageService';
 import { soundService } from '../../services/soundService';
 
@@ -186,16 +186,18 @@ export const ParentsDashboardView: React.FC<ParentsDashboardViewProps> = ({
           <span>📊 Rendimiento Pedagógico por Materia</span>
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {(Object.keys(profile.subjectStats) as Array<keyof typeof profile.subjectStats>).map(
             (sub) => {
               const stat = profile.subjectStats[sub];
+              if (!stat) return null;
               const pct = stat.attempted > 0 ? Math.round((stat.correct / stat.attempted) * 100) : 0;
-              const nameMap = {
+              const nameMap: Record<Subject, string> = {
                 lenguaje: 'Lenguaje',
                 matematicas: 'Matemáticas',
                 geografia: 'Geografía',
-                ingles: 'Inglés'
+                ingles: 'Inglés',
+                memoria: 'Memoria'
               };
 
               return (

@@ -1,4 +1,4 @@
-export type Subject = 'lenguaje' | 'matematicas' | 'geografia' | 'ingles';
+export type Subject = 'lenguaje' | 'matematicas' | 'geografia' | 'ingles' | 'memoria';
 
 export type ExerciseType =
   // Lenguaje
@@ -15,7 +15,11 @@ export type ExerciseType =
   | 'map_pin'
   // Inglés
   | 'vocab_listen_choose'
-  | 'vocab_match_word';
+  | 'vocab_match_word'
+  // Memoria
+  | 'memory_cards'
+  | 'memory_sequence'
+  | 'memory_missing_item';
 
 export interface BaseExercise {
   id: string;
@@ -85,11 +89,22 @@ export interface MathExerciseData extends BaseExercise {
 
 export interface GeographyExerciseData extends BaseExercise {
   type: 'map_pin';
-  mapType: 'spain' | 'europe' | 'world';
+  mapType:
+    | 'spain'
+    | 'europe'
+    | 'world'
+    | 'spain_ccaa'
+    | 'spain_provinces'
+    | 'europe_countries'
+    | 'europe_capitals'
+    | 'world_countries'
+    | 'world_capitals';
+  targetType?: 'region' | 'city';
   targetRegionId: string;
   targetRegionName: string;
   flagEmoji: string;
   funFact: string;
+  category?: 'ccaa' | 'provincial_capitals' | 'countries' | 'country_capitals';
 }
 
 export interface EnglishExerciseData extends BaseExercise {
@@ -106,6 +121,46 @@ export interface EnglishExerciseData extends BaseExercise {
   correctOptionId: string;
 }
 
+export interface MemoryCardsExerciseData extends BaseExercise {
+  type: 'memory_cards';
+  theme: 'animals' | 'fruits' | 'space' | 'sports';
+  gridCols?: number;
+  pairs: Array<{
+    id: string;
+    label: string;
+    symbol: string;
+  }>;
+}
+
+export interface MemorySequenceExerciseData extends BaseExercise {
+  type: 'memory_sequence';
+  sequenceLength: number;
+  items: Array<{
+    id: string;
+    label: string;
+    color: string;
+    soundFreq: number;
+    icon: string;
+  }>;
+  targetSequence: string[];
+}
+
+export interface MemoryMissingItemExerciseData extends BaseExercise {
+  type: 'memory_missing_item';
+  itemsShown: Array<{
+    id: string;
+    name: string;
+    icon: string;
+  }>;
+  missingItemId: string;
+  options: Array<{
+    id: string;
+    name: string;
+    icon: string;
+  }>;
+  memorizeSeconds: number;
+}
+
 export type Exercise =
   | ReadingExerciseData
   | OrderingExerciseData
@@ -113,7 +168,10 @@ export type Exercise =
   | DictationExerciseData
   | MathExerciseData
   | GeographyExerciseData
-  | EnglishExerciseData;
+  | EnglishExerciseData
+  | MemoryCardsExerciseData
+  | MemorySequenceExerciseData
+  | MemoryMissingItemExerciseData;
 
 export interface ReviewItem {
   exerciseId: string;

@@ -86,11 +86,12 @@ export const App: React.FC = () => {
   };
 
   const handleStartSubjectSession = (subject: Subject) => {
-    const titles = {
+    const titles: Record<Subject, string> = {
       lenguaje: 'Práctica de Lenguaje',
       matematicas: 'Práctica de Matemáticas',
       geografia: 'Exploración de Geografía',
-      ingles: 'Vocabulario en Inglés'
+      ingles: 'Vocabulario en Inglés',
+      memoria: 'Gimnasio de Memoria'
     };
     const session = generateSubjectSession(subject, profile, 6);
     setActiveExercises(session);
