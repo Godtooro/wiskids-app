@@ -139,7 +139,19 @@ export interface EnglishExerciseData extends BaseExercise {
   englishWord: string;
   spanishTranslation: string;
   audioText: string;
-  category: 'animals' | 'colors' | 'numbers' | 'family' | 'sports' | 'food' | 'objects';
+  category:
+    | 'animals'
+    | 'colors'
+    | 'numbers'
+    | 'family'
+    | 'sports'
+    | 'food'
+    | 'objects'
+    | 'school'
+    | 'classroom_instructions'
+    | 'body'
+    | 'days_weather'
+    | 'culture';
   options: Array<{
     id: string;
     label: string;

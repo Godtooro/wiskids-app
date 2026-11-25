@@ -341,6 +341,42 @@ export const SCHOOL_PHONICS_EXERCISES: PhonicsExerciseData[] = [
       { id: 'opt_pen', word: 'PEN 🖊️', icon: '🖊️', startsWithSound: false }
     ],
     correctOptionId: 'opt_boat'
+  },
+  {
+    id: 'ph_j',
+    subject: 'ingles',
+    level: 1,
+    type: 'phonics_exercise',
+    title: 'Phonics: Sound /j/',
+    instructions: 'Listen to the /j/ sound (like jelly or jump). Which word begins with /j/?',
+    targetSound: 'j',
+    phonicsWord: 'Jelly',
+    audioText: 'jjjj... jelly, book, tiger',
+    illustration: '🍮',
+    options: [
+      { id: 'opt_book', word: 'BOOK 📖', icon: '📖', startsWithSound: false },
+      { id: 'opt_jelly', word: 'JELLY 🍮', icon: '🍮', startsWithSound: true },
+      { id: 'opt_car', word: 'CAR 🚗', icon: '🚗', startsWithSound: false }
+    ],
+    correctOptionId: 'opt_jelly'
+  },
+  {
+    id: 'ph_ie',
+    subject: 'ingles',
+    level: 1,
+    type: 'phonics_exercise',
+    title: 'Phonics: Sound /ie/',
+    instructions: 'Listen to the /ie/ sound (like pie or tie). Which word has /ie/?',
+    targetSound: 'ie',
+    phonicsWord: 'Pie',
+    audioText: 'eye... pie, dog, sun',
+    illustration: '🥧',
+    options: [
+      { id: 'opt_dog', word: 'DOG 🐶', icon: '🐶', startsWithSound: false },
+      { id: 'opt_pie', word: 'PIE 🥧', icon: '🥧', startsWithSound: true },
+      { id: 'opt_hat', word: 'HAT 🧢', icon: '🧢', startsWithSound: false }
+    ],
+    correctOptionId: 'opt_pie'
   }
 ];
 
