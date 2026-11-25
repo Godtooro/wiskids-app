@@ -164,11 +164,11 @@ export interface UserProfile {
 }
 
 export interface IProgressRepository {
-  getProgress(): Promise<UserProfile>;
-  saveProgress(profile: UserProfile): Promise<void>;
-  recordExerciseResult(exercise: Exercise, isCorrect: boolean): Promise<UserProfile>;
-  exportData(): Promise<string>;
-  importData(codeOrJson: string): Promise<UserProfile>;
+  getProgress(userId?: string): Promise<UserProfile>;
+  saveProgress(profile: UserProfile, userId?: string): Promise<void>;
+  recordExerciseResult(exercise: Exercise, isCorrect: boolean, userId?: string): Promise<UserProfile>;
+  exportData(userId?: string): Promise<string>;
+  importData(codeOrJson: string, userId?: string): Promise<UserProfile>;
   syncWithCloud(profileId: string, pin: string): Promise<UserProfile>;
-  resetProgress(): Promise<UserProfile>;
+  resetProgress(userId?: string): Promise<UserProfile>;
 }

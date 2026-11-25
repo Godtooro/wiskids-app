@@ -67,7 +67,7 @@ export const INITIAL_TROPHIES: Trophy[] = [
 
 export const INITIAL_PROFILE: UserProfile = {
   id: 'wiskids-hero-1',
-  name: 'Leo',
+  name: 'Wis',
   pin: '1234',
   age: 6,
   avatar: '🦁',
@@ -88,12 +88,25 @@ export const INITIAL_PROFILE: UserProfile = {
 };
 
 export class LocalStorageRepository implements IProgressRepository {
-  async getProgress(): Promise<UserProfile> {
+  private activeUserId: string | null = null;
+
+  setActiveUserId(userId: string | null) {
+    this.activeUserId = userId;
+  }
+
+  private getKey(userId?: string): string {
+    const id = userId || this.activeUserId;
+    return id ? `${STORAGE_KEY}_${id}` : STORAGE_KEY;
+  }
+
+  async getProgress(userId?: string): Promise<UserProfile> {
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const key = this.getKey(userId);
+      const data = localStorage.getItem(key);
       if (!data) {
-        await this.saveProgress(INITIAL_PROFILE);
-        return INITIAL_PROFILE;
+        const initial = { ...INITIAL_PROFILE, id: userId || INITIAL_PROFILE.id };
+        await this.saveProgress(initial, userId);
+        return initial;
       }
       const profile = JSON.parse(data) as UserProfile;
       this.checkDailyStreak(profile);
@@ -104,9 +117,10 @@ export class LocalStorageRepository implements IProgressRepository {
     }
   }
 
-  async saveProgress(profile: UserProfile): Promise<void> {
+  async saveProgress(profile: UserProfile, userId?: string): Promise<void> {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+      const key = this.getKey(userId);
+      localStorage.setItem(key, JSON.stringify(profile));
     } catch (err) {
       console.error('Error saving user profile to localStorage:', err);
     }
@@ -135,8 +149,8 @@ export class LocalStorageRepository implements IProgressRepository {
     return true;
   }
 
-  async recordExerciseResult(exercise: Exercise, isCorrect: boolean): Promise<UserProfile> {
-    const profile = await this.getProgress();
+  async recordExerciseResult(exercise: Exercise, isCorrect: boolean, userId?: string): Promise<UserProfile> {
+    const profile = await this.getProgress(userId);
     const sub = exercise.subject;
     const stats = profile.subjectStats[sub];
 
@@ -192,7 +206,7 @@ export class LocalStorageRepository implements IProgressRepository {
     }
 
     this.updateTrophies(profile);
-    await this.saveProgress(profile);
+    await this.saveProgress(profile, userId);
     return profile;
   }
 
@@ -221,15 +235,15 @@ export class LocalStorageRepository implements IProgressRepository {
     });
   }
 
-  async exportData(): Promise<string> {
-    const profile = await this.getProgress();
+  async exportData(userId?: string): Promise<string> {
+    const profile = await this.getProgress(userId);
     const jsonStr = JSON.stringify(profile);
     // Compact Base64 code with header
     const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
     return `WISKID-${encoded}`;
   }
 
-  async importData(codeOrJson: string): Promise<UserProfile> {
+  async importData(codeOrJson: string, userId?: string): Promise<UserProfile> {
     try {
       let rawJson = codeOrJson.trim();
       if (rawJson.startsWith('WISKID-')) {
@@ -243,7 +257,7 @@ export class LocalStorageRepository implements IProgressRepository {
       if (!parsed.id || !parsed.subjectStats) {
         throw new Error('Estructura de perfil inválida');
       }
-      await this.saveProgress(parsed);
+      await this.saveProgress(parsed, userId);
       return parsed;
     } catch (err) {
       console.error('Error importing progress:', err);
@@ -256,9 +270,9 @@ export class LocalStorageRepository implements IProgressRepository {
     return this.getProgress();
   }
 
-  async resetProgress(): Promise<UserProfile> {
-    const fresh = { ...INITIAL_PROFILE, lastActiveDate: new Date().toISOString().split('T')[0] };
-    await this.saveProgress(fresh);
+  async resetProgress(userId?: string): Promise<UserProfile> {
+    const fresh = { ...INITIAL_PROFILE, id: userId || INITIAL_PROFILE.id, lastActiveDate: new Date().toISOString().split('T')[0] };
+    await this.saveProgress(fresh, userId);
     return fresh;
   }
 }
@@ -269,13 +283,13 @@ export class CloudSyncRepository implements IProgressRepository {
   private supabaseUrl = import.meta.env?.VITE_SUPABASE_URL;
   private supabaseKey = import.meta.env?.VITE_SUPABASE_ANON_KEY;
 
-  async getProgress(): Promise<UserProfile> {
+  async getProgress(userId?: string): Promise<UserProfile> {
     if (!this.supabaseUrl || !this.supabaseKey) {
-      return this.localFallback.getProgress();
+      return this.localFallback.getProgress(userId);
     }
     // Remote fetch using standard fetch to Supabase REST endpoint
     try {
-      const local = await this.localFallback.getProgress();
+      const local = await this.localFallback.getProgress(userId);
       const res = await fetch(`${this.supabaseUrl}/rest/v1/profiles?id=eq.${local.id}`, {
         headers: {
           'apikey': this.supabaseKey,
@@ -285,18 +299,18 @@ export class CloudSyncRepository implements IProgressRepository {
       if (res.ok) {
         const rows = await res.json();
         if (rows.length > 0 && rows[0].data) {
-          await this.localFallback.saveProgress(rows[0].data);
+          await this.localFallback.saveProgress(rows[0].data, userId);
           return rows[0].data;
         }
       }
     } catch (e) {
       console.warn('Cloud fetch failed, using local storage:', e);
     }
-    return this.localFallback.getProgress();
+    return this.localFallback.getProgress(userId);
   }
 
-  async saveProgress(profile: UserProfile): Promise<void> {
-    await this.localFallback.saveProgress(profile);
+  async saveProgress(profile: UserProfile, userId?: string): Promise<void> {
+    await this.localFallback.saveProgress(profile, userId);
     if (!this.supabaseUrl || !this.supabaseKey) return;
     try {
       await fetch(`${this.supabaseUrl}/rest/v1/profiles`, {
@@ -314,19 +328,19 @@ export class CloudSyncRepository implements IProgressRepository {
     }
   }
 
-  async recordExerciseResult(exercise: Exercise, isCorrect: boolean): Promise<UserProfile> {
-    const updated = await this.localFallback.recordExerciseResult(exercise, isCorrect);
-    this.saveProgress(updated).catch(() => {});
+  async recordExerciseResult(exercise: Exercise, isCorrect: boolean, userId?: string): Promise<UserProfile> {
+    const updated = await this.localFallback.recordExerciseResult(exercise, isCorrect, userId);
+    this.saveProgress(updated, userId).catch(() => {});
     return updated;
   }
 
-  async exportData(): Promise<string> {
-    return this.localFallback.exportData();
+  async exportData(userId?: string): Promise<string> {
+    return this.localFallback.exportData(userId);
   }
 
-  async importData(codeOrJson: string): Promise<UserProfile> {
-    const imported = await this.localFallback.importData(codeOrJson);
-    this.saveProgress(imported).catch(() => {});
+  async importData(codeOrJson: string, userId?: string): Promise<UserProfile> {
+    const imported = await this.localFallback.importData(codeOrJson, userId);
+    this.saveProgress(imported, userId).catch(() => {});
     return imported;
   }
 
@@ -354,8 +368,8 @@ export class CloudSyncRepository implements IProgressRepository {
     return this.localFallback.getProgress();
   }
 
-  async resetProgress(): Promise<UserProfile> {
-    return this.localFallback.resetProgress();
+  async resetProgress(userId?: string): Promise<UserProfile> {
+    return this.localFallback.resetProgress(userId);
   }
 }
 

@@ -1,41 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, Exercise, Subject } from './types/education';
+import { UserAccount } from './types/auth';
 import { storageService, INITIAL_PROFILE } from './services/storageService';
+import { authService } from './services/authService';
 import { generateDailySession, generateSubjectSession } from './data/sessionGenerator';
 
 // Common Components
 import { Header } from './components/common/Header';
 
 // Views
+import { LoginView } from './components/views/LoginView';
 import { DashboardView } from './components/views/DashboardView';
 import { SessionRunnerView } from './components/views/SessionRunnerView';
 import { ReviewBoxView } from './components/views/ReviewBoxView';
 import { TrophiesView } from './components/views/TrophiesView';
 import { ParentsDashboardView } from './components/views/ParentsDashboardView';
+import { AdminUsersView } from './components/views/AdminUsersView';
 
-type ViewMode = 'dashboard' | 'session' | 'review' | 'trophies' | 'parents';
+type ViewMode = 'dashboard' | 'session' | 'review' | 'trophies' | 'parents' | 'admin_users';
 
 export const App: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [profile, setProfile] = useState<UserProfile>(INITIAL_PROFILE);
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [activeExercises, setActiveExercises] = useState<Exercise[]>([]);
   const [sessionTitle, setSessionTitle] = useState('Entrenamiento Diario');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load progress on initial mount
+  // Check saved session & load progress on initial mount
   useEffect(() => {
-    const loadData = async () => {
+    const initAuthAndProgress = async () => {
       try {
-        const loaded = await storageService.getProgress();
-        setProfile(loaded);
+        const session = authService.getCurrentSession();
+        if (session && session.user) {
+          setCurrentUser(session.user);
+          const loaded = await storageService.getProgress(session.user.id);
+          // Sync name and avatar if newly created
+          if (loaded.name !== session.user.name) {
+            loaded.name = session.user.name;
+          }
+          if (session.user.avatar && loaded.avatar !== session.user.avatar) {
+            loaded.avatar = session.user.avatar;
+          }
+          setProfile(loaded);
+        }
       } catch (e) {
-        console.error('Failed to load initial progress:', e);
+        console.error('Failed to load initial session or progress:', e);
       } finally {
         setIsLoading(false);
       }
     };
-    loadData();
+    initAuthAndProgress();
   }, []);
+
+  const handleLoginSuccess = async (user: UserAccount) => {
+    setIsLoading(true);
+    setCurrentUser(user);
+    try {
+      const loaded = await storageService.getProgress(user.id);
+      loaded.name = user.name;
+      if (user.avatar) {
+        loaded.avatar = user.avatar;
+      }
+      await storageService.saveProgress(loaded, user.id);
+      setProfile(loaded);
+      setCurrentView('dashboard');
+    } catch (e) {
+      console.error('Failed to load user progress on login:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setCurrentUser(null);
+    setCurrentView('dashboard');
+  };
 
   const handleStartDailySession = () => {
     const session = generateDailySession(profile);
@@ -65,10 +106,13 @@ export const App: React.FC = () => {
 
   const handleFinishSession = (updatedProfile: UserProfile) => {
     setProfile(updatedProfile);
+    if (currentUser) {
+      storageService.saveProgress(updatedProfile, currentUser.id);
+    }
   };
 
   const handleExitSession = async () => {
-    const fresh = await storageService.getProgress();
+    const fresh = await storageService.getProgress(currentUser?.id);
     setProfile(fresh);
     setCurrentView('dashboard');
   };
@@ -86,14 +130,21 @@ export const App: React.FC = () => {
     );
   }
 
+  // Not logged in -> Show Login View
+  if (!currentUser) {
+    return <LoginView onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
       {/* Show header on non-session views */}
       {currentView !== 'session' && (
         <Header
           profile={profile}
+          currentUser={currentUser}
           currentView={currentView}
           onNavigate={(view) => setCurrentView(view)}
+          onLogout={handleLogout}
         />
       )}
 
@@ -135,7 +186,19 @@ export const App: React.FC = () => {
         {currentView === 'parents' && (
           <ParentsDashboardView
             profile={profile}
-            onUpdateProfile={(updated) => setProfile(updated)}
+            onUpdateProfile={(updated) => {
+              setProfile(updated);
+              if (currentUser) {
+                storageService.saveProgress(updated, currentUser.id);
+              }
+            }}
+            onBack={() => setCurrentView('dashboard')}
+          />
+        )}
+
+        {currentView === 'admin_users' && currentUser.role === 'admin' && (
+          <AdminUsersView
+            currentUser={currentUser}
             onBack={() => setCurrentView('dashboard')}
           />
         )}
@@ -143,4 +206,5 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
 export default App;
