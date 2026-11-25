@@ -16,14 +16,18 @@ import { ReviewBoxView } from './components/views/ReviewBoxView';
 import { TrophiesView } from './components/views/TrophiesView';
 import { ParentsDashboardView } from './components/views/ParentsDashboardView';
 import { AdminUsersView } from './components/views/AdminUsersView';
+import { GeographyHubView } from './components/views/GeographyHubView';
+import { generateGeographyCategorySession } from './data/geographyData';
+import { GeographyCategory } from './types/education';
 
-type ViewMode = 'dashboard' | 'session' | 'review' | 'trophies' | 'parents' | 'admin_users';
+type ViewMode = 'dashboard' | 'session' | 'review' | 'trophies' | 'parents' | 'admin_users' | 'geography_hub';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [profile, setProfile] = useState<UserProfile>(INITIAL_PROFILE);
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [activeExercises, setActiveExercises] = useState<Exercise[]>([]);
+  const [activeGeographyCategory, setActiveGeographyCategory] = useState<GeographyCategory | null>(null);
   const [sessionTitle, setSessionTitle] = useState('Entrenamiento Diario');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -86,6 +90,11 @@ export const App: React.FC = () => {
   };
 
   const handleStartSubjectSession = (subject: Subject) => {
+    if (subject === 'geografia') {
+      setCurrentView('geography_hub');
+      return;
+    }
+
     const titles: Record<Subject, string> = {
       lenguaje: 'Práctica de Lenguaje',
       matematicas: 'Práctica de Matemáticas (Currículo Escolar)',
@@ -100,23 +109,54 @@ export const App: React.FC = () => {
     setCurrentView('session');
   };
 
+  const handleStartGeographyCategorySession = (category: GeographyCategory) => {
+    const titles: Record<GeographyCategory, string> = {
+      espana_ccaa: 'España: Comunidades Autónomas',
+      espana_provincias: 'España: Capitales de Provincia',
+      continentes: 'Continentes del Mundo',
+      capitales_europa: 'Capitales de Europa',
+      capitales_asia: 'Capitales de Asia',
+      capitales_africa: 'Capitales de África',
+      capitales_america: 'Capitales de América (Norte y Sur)',
+      capitales_centroamerica: 'Capitales de Centroamérica y Caribe'
+    };
+    const exercises = generateGeographyCategorySession(category, 6);
+    setActiveGeographyCategory(category);
+    setActiveExercises(exercises);
+    setSessionTitle(titles[category]);
+    setCurrentView('session');
+  };
+
   const handleStartReviewSession = (exercises: Exercise[]) => {
     setActiveExercises(exercises);
     setSessionTitle('Buzón de Retos (Repaso de Fallos)');
     setCurrentView('session');
   };
 
-  const handleFinishSession = (updatedProfile: UserProfile) => {
-    setProfile(updatedProfile);
+  const handleFinishSession = async (updatedProfile: UserProfile) => {
+    let finalProfile = updatedProfile;
+    if (activeGeographyCategory) {
+      finalProfile = await storageService.recordGeographyCategoryCompletion(
+        activeGeographyCategory,
+        currentUser?.id
+      );
+      setActiveGeographyCategory(null);
+    }
+    setProfile(finalProfile);
     if (currentUser) {
-      storageService.saveProgress(updatedProfile, currentUser.id);
+      await storageService.saveProgress(finalProfile, currentUser.id);
     }
   };
 
   const handleExitSession = async () => {
     const fresh = await storageService.getProgress(currentUser?.id);
     setProfile(fresh);
-    setCurrentView('dashboard');
+    if (activeGeographyCategory) {
+      setActiveGeographyCategory(null);
+      setCurrentView('geography_hub');
+    } else {
+      setCurrentView('dashboard');
+    }
   };
 
   if (isLoading) {
@@ -201,6 +241,14 @@ export const App: React.FC = () => {
         {currentView === 'admin_users' && currentUser.role === 'admin' && (
           <AdminUsersView
             currentUser={currentUser}
+            onBack={() => setCurrentView('dashboard')}
+          />
+        )}
+
+        {currentView === 'geography_hub' && (
+          <GeographyHubView
+            profile={profile}
+            onSelectCategory={handleStartGeographyCategorySession}
             onBack={() => setCurrentView('dashboard')}
           />
         )}

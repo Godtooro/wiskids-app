@@ -92,6 +92,22 @@ export interface MathExerciseData extends BaseExercise {
   hasCarry?: boolean;
 }
 
+export type GeographyCategory =
+  | 'continentes'
+  | 'capitales_europa'
+  | 'capitales_asia'
+  | 'capitales_africa'
+  | 'capitales_america'
+  | 'capitales_centroamerica'
+  | 'espana_ccaa'
+  | 'espana_provincias';
+
+export interface GeographyPassport {
+  weekId: string;
+  completedCategories: GeographyCategory[];
+  lastCompletedDate: Record<string, string>;
+}
+
 export interface GeographyExerciseData extends BaseExercise {
   type: 'map_pin';
   mapType:
@@ -103,13 +119,19 @@ export interface GeographyExerciseData extends BaseExercise {
     | 'europe_countries'
     | 'europe_capitals'
     | 'world_countries'
-    | 'world_capitals';
+    | 'world_capitals'
+    | 'continentes'
+    | 'capitales_europa'
+    | 'capitales_asia'
+    | 'capitales_africa'
+    | 'capitales_america'
+    | 'capitales_centroamerica';
   targetType?: 'region' | 'city';
   targetRegionId: string;
   targetRegionName: string;
   flagEmoji: string;
   funFact: string;
-  category?: 'ccaa' | 'provincial_capitals' | 'countries' | 'country_capitals';
+  category?: GeographyCategory | 'ccaa' | 'provincial_capitals' | 'countries' | 'country_capitals';
 }
 
 export interface EnglishExerciseData extends BaseExercise {
@@ -271,12 +293,14 @@ export interface UserProfile {
   subjectStats: Record<Subject, SubjectStats>;
   trophies: Trophy[];
   reviewQueue: ReviewItem[];
+  geographyPassport?: GeographyPassport;
 }
 
 export interface IProgressRepository {
   getProgress(userId?: string): Promise<UserProfile>;
   saveProgress(profile: UserProfile, userId?: string): Promise<void>;
   recordExerciseResult(exercise: Exercise, isCorrect: boolean, userId?: string): Promise<UserProfile>;
+  recordGeographyCategoryCompletion(category: GeographyCategory, userId?: string): Promise<UserProfile>;
   exportData(userId?: string): Promise<string>;
   importData(codeOrJson: string, userId?: string): Promise<UserProfile>;
   syncWithCloud(profileId: string, pin: string): Promise<UserProfile>;

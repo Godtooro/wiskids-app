@@ -1,6 +1,24 @@
-import { IProgressRepository, UserProfile, Exercise, Trophy, Subject, ReviewItem } from '../types/education';
+import {
+  IProgressRepository,
+  UserProfile,
+  Exercise,
+  Trophy,
+  Subject,
+  ReviewItem,
+  GeographyCategory,
+  GeographyPassport
+} from '../types/education';
 
 const STORAGE_KEY = 'wiskids_profile_v1';
+
+export function getCurrentWeekId(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const firstJan = new Date(year, 0, 1);
+  const dayOfYear = Math.floor((now.getTime() - firstJan.getTime()) / (24 * 60 * 60 * 1000));
+  const weekNum = Math.ceil((dayOfYear + firstJan.getDay() + 1) / 7);
+  return `${year}-W${String(weekNum).padStart(2, '0')}`;
+}
 
 export const INITIAL_TROPHIES: Trophy[] = [
   {
@@ -64,6 +82,16 @@ export const INITIAL_TROPHIES: Trophy[] = [
     target: 10
   },
   {
+    id: 'trotamundos_semanal',
+    title: 'Pasaporte Trotamundos',
+    description: 'Completa las 8 misiones geográficas en una misma semana.',
+    icon: '🗺️',
+    category: 'geografia',
+    unlocked: false,
+    progress: 0,
+    target: 8
+  },
+  {
     id: 'racha_3_dias',
     title: 'Racha Imparable',
     description: 'Entrena durante 3 días seguidos.',
@@ -106,7 +134,12 @@ export const INITIAL_PROFILE: UserProfile = {
     sexta_hora: { attempted: 0, correct: 0, level: 1, streak: 0 }
   },
   trophies: INITIAL_TROPHIES,
-  reviewQueue: []
+  reviewQueue: [],
+  geographyPassport: {
+    weekId: getCurrentWeekId(),
+    completedCategories: [],
+    lastCompletedDate: {}
+  }
 };
 
 export class LocalStorageRepository implements IProgressRepository {
@@ -139,6 +172,17 @@ export class LocalStorageRepository implements IProgressRepository {
       }
       if (!profile.subjectStats.sexta_hora) {
         profile.subjectStats.sexta_hora = { attempted: 0, correct: 0, level: 1, streak: 0 };
+      }
+      const currentWeek = getCurrentWeekId();
+      if (!profile.geographyPassport) {
+        profile.geographyPassport = {
+          weekId: currentWeek,
+          completedCategories: [],
+          lastCompletedDate: {}
+        };
+      } else if (profile.geographyPassport.weekId !== currentWeek) {
+        profile.geographyPassport.weekId = currentWeek;
+        profile.geographyPassport.completedCategories = [];
       }
       this.checkDailyStreak(profile);
       return profile;
@@ -262,6 +306,8 @@ export class LocalStorageRepository implements IProgressRepository {
         t.progress = profile.subjectStats.memoria?.correct || 0;
       } else if (t.id === 'as_sexta_hora') {
         t.progress = profile.subjectStats.sexta_hora?.correct || 0;
+      } else if (t.id === 'trotamundos_semanal') {
+        t.progress = profile.geographyPassport?.completedCategories.length || 0;
       } else if (t.id === 'racha_3_dias') {
         t.progress = profile.streak;
       }
@@ -271,6 +317,27 @@ export class LocalStorageRepository implements IProgressRepository {
         t.unlockedAt = now;
       }
     });
+  }
+
+  async recordGeographyCategoryCompletion(category: GeographyCategory, userId?: string): Promise<UserProfile> {
+    const profile = await this.getProgress(userId);
+    const currentWeek = getCurrentWeekId();
+    if (!profile.geographyPassport || profile.geographyPassport.weekId !== currentWeek) {
+      profile.geographyPassport = {
+        weekId: currentWeek,
+        completedCategories: [],
+        lastCompletedDate: {}
+      };
+    }
+
+    if (!profile.geographyPassport.completedCategories.includes(category)) {
+      profile.geographyPassport.completedCategories.push(category);
+    }
+    profile.geographyPassport.lastCompletedDate[category] = new Date().toISOString();
+
+    this.updateTrophies(profile);
+    await this.saveProgress(profile, userId);
+    return profile;
   }
 
   async exportData(userId?: string): Promise<string> {
@@ -368,6 +435,12 @@ export class CloudSyncRepository implements IProgressRepository {
 
   async recordExerciseResult(exercise: Exercise, isCorrect: boolean, userId?: string): Promise<UserProfile> {
     const updated = await this.localFallback.recordExerciseResult(exercise, isCorrect, userId);
+    this.saveProgress(updated, userId).catch(() => {});
+    return updated;
+  }
+
+  async recordGeographyCategoryCompletion(category: GeographyCategory, userId?: string): Promise<UserProfile> {
+    const updated = await this.localFallback.recordGeographyCategoryCompletion(category, userId);
     this.saveProgress(updated, userId).catch(() => {});
     return updated;
   }
