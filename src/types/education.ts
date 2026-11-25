@@ -1,4 +1,4 @@
-export type Subject = 'lenguaje' | 'matematicas' | 'geografia' | 'ingles' | 'memoria';
+export type Subject = 'lenguaje' | 'matematicas' | 'geografia' | 'ingles' | 'memoria' | 'sexta_hora';
 
 export type ExerciseType =
   // Lenguaje
@@ -19,7 +19,12 @@ export type ExerciseType =
   // Memoria
   | 'memory_cards'
   | 'memory_sequence'
-  | 'memory_missing_item';
+  | 'memory_missing_item'
+  // Refuerzo 1º Trimestre y 6ª Hora
+  | 'math_school_challenge'
+  | 'phonics_exercise'
+  | 'reasoning_magic_triangle'
+  | 'reasoning_secret_code';
 
 export interface BaseExercise {
   id: string;
@@ -161,6 +166,49 @@ export interface MemoryMissingItemExerciseData extends BaseExercise {
   memorizeSeconds: number;
 }
 
+export interface MathSchoolChallengeData extends BaseExercise {
+  type: 'math_school_challenge';
+  subType: 'coins' | 'place_value' | 'ordinals' | 'series' | 'word_problem' | 'geometry_measure';
+  question: string;
+  illustration?: string;
+  coinItems?: Array<{ value: 1 | 2; count: number }>;
+  placeValueTens?: number;
+  placeValueUnits?: number;
+  options: Array<{ id: string; label: string; icon?: string }>;
+  correctOptionId: string;
+  explanation: string;
+}
+
+export interface PhonicsExerciseData extends BaseExercise {
+  type: 'phonics_exercise';
+  targetSound: string; // e.g. 's', 'a', 't', 'i', 'p', 'n', 'oa', 'ie'
+  phonicsWord: string;
+  audioText: string;
+  illustration: string;
+  options: Array<{ id: string; word: string; icon: string; startsWithSound: boolean }>;
+  correctOptionId: string;
+}
+
+export interface MagicTriangleExerciseData extends BaseExercise {
+  type: 'reasoning_magic_triangle';
+  targetSum: number;
+  corners: [number | null, number | null, number | null];
+  midpoints: [number | null, number | null, number | null];
+  availableNumbers: number[];
+  solution: {
+    corners: [number, number, number];
+    midpoints: [number, number, number];
+  };
+}
+
+export interface SecretCodeExerciseData extends BaseExercise {
+  type: 'reasoning_secret_code';
+  secretLength: number;
+  colorPool: Array<{ id: string; name: string; colorHex: string; icon: string }>;
+  targetCode: string[];
+  maxTries: number;
+}
+
 export type Exercise =
   | ReadingExerciseData
   | OrderingExerciseData
@@ -171,7 +219,11 @@ export type Exercise =
   | EnglishExerciseData
   | MemoryCardsExerciseData
   | MemorySequenceExerciseData
-  | MemoryMissingItemExerciseData;
+  | MemoryMissingItemExerciseData
+  | MathSchoolChallengeData
+  | PhonicsExerciseData
+  | MagicTriangleExerciseData
+  | SecretCodeExerciseData;
 
 export interface ReviewItem {
   exerciseId: string;

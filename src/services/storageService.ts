@@ -54,6 +54,16 @@ export const INITIAL_TROPHIES: Trophy[] = [
     target: 10
   },
   {
+    id: 'as_sexta_hora',
+    title: 'As de 6ª Hora',
+    description: 'Supera 10 retos de razonamiento y refuerzo escolar.',
+    icon: '🎒',
+    category: 'sexta_hora',
+    unlocked: false,
+    progress: 0,
+    target: 10
+  },
+  {
     id: 'racha_3_dias',
     title: 'Racha Imparable',
     description: 'Entrena durante 3 días seguidos.',
@@ -92,7 +102,8 @@ export const INITIAL_PROFILE: UserProfile = {
     matematicas: { attempted: 0, correct: 0, level: 1, streak: 0 },
     geografia: { attempted: 0, correct: 0, level: 1, streak: 0 },
     ingles: { attempted: 0, correct: 0, level: 1, streak: 0 },
-    memoria: { attempted: 0, correct: 0, level: 1, streak: 0 }
+    memoria: { attempted: 0, correct: 0, level: 1, streak: 0 },
+    sexta_hora: { attempted: 0, correct: 0, level: 1, streak: 0 }
   },
   trophies: INITIAL_TROPHIES,
   reviewQueue: []
@@ -125,6 +136,9 @@ export class LocalStorageRepository implements IProgressRepository {
       }
       if (!profile.subjectStats.memoria) {
         profile.subjectStats.memoria = { attempted: 0, correct: 0, level: 1, streak: 0 };
+      }
+      if (!profile.subjectStats.sexta_hora) {
+        profile.subjectStats.sexta_hora = { attempted: 0, correct: 0, level: 1, streak: 0 };
       }
       this.checkDailyStreak(profile);
       return profile;
@@ -169,6 +183,9 @@ export class LocalStorageRepository implements IProgressRepository {
   async recordExerciseResult(exercise: Exercise, isCorrect: boolean, userId?: string): Promise<UserProfile> {
     const profile = await this.getProgress(userId);
     const sub = exercise.subject;
+    if (!profile.subjectStats[sub]) {
+      profile.subjectStats[sub] = { attempted: 0, correct: 0, level: 1, streak: 0 };
+    }
     const stats = profile.subjectStats[sub];
 
     stats.attempted += 1;
@@ -234,13 +251,17 @@ export class LocalStorageRepository implements IProgressRepository {
       if (t.unlocked) return;
 
       if (t.id === 'pichichi_numeros') {
-        t.progress = profile.subjectStats.matematicas.correct;
+        t.progress = profile.subjectStats.matematicas?.correct || 0;
       } else if (t.id === 'explorador_mapa') {
-        t.progress = profile.subjectStats.geografia.correct;
+        t.progress = profile.subjectStats.geografia?.correct || 0;
       } else if (t.id === 'mvp_lectura') {
-        t.progress = profile.subjectStats.lenguaje.correct;
+        t.progress = profile.subjectStats.lenguaje?.correct || 0;
       } else if (t.id === 'champion_english') {
-        t.progress = profile.subjectStats.ingles.correct;
+        t.progress = profile.subjectStats.ingles?.correct || 0;
+      } else if (t.id === 'maestro_memoria') {
+        t.progress = profile.subjectStats.memoria?.correct || 0;
+      } else if (t.id === 'as_sexta_hora') {
+        t.progress = profile.subjectStats.sexta_hora?.correct || 0;
       } else if (t.id === 'racha_3_dias') {
         t.progress = profile.streak;
       }

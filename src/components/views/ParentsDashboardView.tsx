@@ -197,7 +197,8 @@ export const ParentsDashboardView: React.FC<ParentsDashboardViewProps> = ({
                 matematicas: 'Matemáticas',
                 geografia: 'Geografía',
                 ingles: 'Inglés',
-                memoria: 'Memoria'
+                memoria: 'Memoria',
+                sexta_hora: '6ª Hora (Colegio)'
               };
 
               return (

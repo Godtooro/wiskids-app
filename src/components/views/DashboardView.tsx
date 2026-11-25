@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Sparkles, BookOpen, Calculator, Compass, Award, Target, Flame, ArrowRight, Brain } from 'lucide-react';
+import { Play, Sparkles, BookOpen, Calculator, Compass, Award, Target, Flame, ArrowRight, Brain, GraduationCap } from 'lucide-react';
 import { UserProfile, Subject } from '../../types/education';
 import { soundService } from '../../services/soundService';
 
@@ -76,7 +76,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <span className="text-xs font-bold text-slate-400">Elige lo que más te apetezca entrenar</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {/* Lenguaje */}
           <button
             type="button"
@@ -208,6 +208,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </h3>
               <p className="text-xs font-bold text-slate-500 mt-0.5">
                 Parejas, secuencias sonoras y atención
+              </p>
+            </div>
+          </button>
+
+          {/* 6ª Hora (Refuerzo Colegio & Razonamiento) */}
+          <button
+            type="button"
+            onClick={() => {
+              soundService.playTap();
+              onStartSubjectSession('sexta_hora');
+            }}
+            className="group touch-target min-h-[140px] p-5 rounded-3xl bg-white hover:bg-teal-50/50 border-2 border-slate-200 hover:border-teal-400 shadow-sm hover:shadow-md transition-all active:scale-95 text-left flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center">
+                <GraduationCap className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-black text-teal-700 bg-teal-100/70 px-2 py-1 rounded-lg">
+                {profile.subjectStats?.sexta_hora?.correct || 0} retos
+              </span>
+            </div>
+            <div>
+              <h3 className="font-black text-xl text-slate-800 group-hover:text-teal-700 transition-colors">
+                6ª Hora
+              </h3>
+              <p className="text-xs font-bold text-slate-500 mt-0.5">
+                Triángulos, códigos y refuerzo colegio
               </p>
             </div>
           </button>

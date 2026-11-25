@@ -13,6 +13,7 @@ import { MathExercise } from '../exercises/MathExercise';
 import { GeographyMapExercise } from '../exercises/GeographyMapExercise';
 import { EnglishExercise } from '../exercises/EnglishExercise';
 import { MemoryExercise } from '../exercises/MemoryExercise';
+import { SchoolRefuerzoExercise } from '../exercises/SchoolRefuerzoExercise';
 
 interface SessionRunnerViewProps {
   exercises: Exercise[];
@@ -122,6 +123,17 @@ export const SessionRunnerView: React.FC<SessionRunnerViewProps> = ({
       case 'memory_missing_item':
         return (
           <MemoryExercise
+            key={currentExercise.id}
+            exercise={currentExercise}
+            onComplete={handleExerciseComplete}
+          />
+        );
+      case 'math_school_challenge':
+      case 'phonics_exercise':
+      case 'reasoning_magic_triangle':
+      case 'reasoning_secret_code':
+        return (
+          <SchoolRefuerzoExercise
             key={currentExercise.id}
             exercise={currentExercise}
             onComplete={handleExerciseComplete}
